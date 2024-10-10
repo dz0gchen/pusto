@@ -1,0 +1,6 @@
+sqlalchemy
+db-sqlite3
+pytest
+flake8
+black
+mypy
