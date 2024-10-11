@@ -1,13 +1,12 @@
 import enum
 import uuid
 from datetime import date
-from typing import Any
 
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.dialects.sqlite import DATE, INTEGER, VARCHAR
-from sqlalchemy.orm import declarative_base, relationship, validates, Session
+from sqlalchemy.orm import relationship, validates, Session
 
-Base: Any = declarative_base()
+from models import Base
 
 
 class BoostTypes(enum.Enum):
@@ -15,8 +14,8 @@ class BoostTypes(enum.Enum):
     premium = "premium"
 
 
-class Player(Base):
-    __tablename__ = "players"
+class PlayerB(Base):
+    __tablename__ = "players_b"
 
     player_id = Column(
         VARCHAR(36),
@@ -27,7 +26,7 @@ class Player(Base):
     )
     name = Column(VARCHAR(100), nullable=False, unique=True)
     last_login = Column(DATE, nullable=True)
-    boosts = relationship("PlayerBoost", backref="players", cascade="all, delete")
+    boosts = relationship("PlayerBoost", backref="players_b", cascade="all, delete")
 
     @validates("last_login")
     def validate_last_login(self, _, value):
@@ -39,7 +38,7 @@ class Player(Base):
     def increase_boosts(
         cls, session: Session, player: Column[str], boosts: list[str]
     ) -> None:
-        player = session.get(Player, player)
+        player = session.get(PlayerB, player)
         for boost in boosts:
             _boost = session.query(Boost).filter_by(title=boost).one_or_none()
             if _boost is None:
@@ -59,5 +58,5 @@ class Boost(Base):
 class PlayerBoost(Base):
     __tablename__ = "player_boosts"
 
-    player = Column(INTEGER, ForeignKey(Player.player_id), primary_key=True)
+    player = Column(INTEGER, ForeignKey(PlayerB.player_id), primary_key=True)
     boost = Column(INTEGER, ForeignKey(Boost.boost_id), primary_key=True)
