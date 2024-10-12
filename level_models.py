@@ -8,7 +8,7 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.sqlite import BOOLEAN, DATE, INTEGER, VARCHAR
 from sqlalchemy.orm import relationship, validates, Session
 
-from  boost_models import Base
+from boost_models import Base
 
 
 class Scores(Enum):
