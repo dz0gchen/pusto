@@ -1,12 +1,14 @@
 import enum
 import uuid
 from datetime import date
+from typing import Any
 
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.dialects.sqlite import DATE, INTEGER, VARCHAR
-from sqlalchemy.orm import relationship, validates, Session
+from sqlalchemy.orm import declarative_base, relationship, validates, Session
 
-from models import Base
+
+Base: Any = declarative_base()
 
 
 class BoostTypes(enum.Enum):
@@ -39,11 +41,9 @@ class PlayerB(Base):
         cls, session: Session, player: Column[str], boosts: list[str]
     ) -> None:
         player = session.get(PlayerB, player)
-        for boost in boosts:
-            _boost = session.query(Boost).filter_by(title=boost).one_or_none()
-            if _boost is None:
-                continue
-            player.boosts.append(PlayerBoost(boost=_boost.boost_id))
+        _boosts = session.query(Boost).filter(Boost.title.in_(boosts)).all()
+        for boost in _boosts:
+            player.boosts.append(PlayerBoost(boost=boost.boost_id))
         session.commit()
 
 

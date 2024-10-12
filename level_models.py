@@ -3,21 +3,20 @@ import uuid
 
 from datetime import date
 from enum import Enum
-from typing import Any
 
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.sqlite import BOOLEAN, DATE, INTEGER, VARCHAR
-from sqlalchemy.orm import declarative_base, relationship, validates, Session
+from sqlalchemy.orm import relationship, validates, Session
 
-Base: Any = declarative_base()
+from  boost_models import Base
 
 
 class Scores(Enum):
     MID = 100
 
 
-class Player(Base):
-    __tablename__ = "players"
+class PlayerL(Base):
+    __tablename__ = "players_l"
 
     player_id = Column(
         VARCHAR(36),
@@ -27,7 +26,7 @@ class Player(Base):
         unique=True,
     )
     name = Column(VARCHAR(100), nullable=False, unique=True)
-    levels = relationship("PlayerLevel", backref="players", cascade="all, delete")
+    levels = relationship("PlayerLevel", backref="players_l", cascade="all, delete")
 
 
 class Level(Base):
@@ -50,7 +49,7 @@ class Prize(Base):
 class PlayerLevel(Base):
     __tablename__ = "player_levels"
 
-    player = Column(VARCHAR(36), ForeignKey(Player.player_id), primary_key=True)
+    player = Column(VARCHAR(36), ForeignKey(PlayerL.player_id), primary_key=True)
     level = Column(INTEGER, ForeignKey(Level.level_id), primary_key=True)
     completed = Column(DATE)
     is_completed = Column(BOOLEAN, default=False)

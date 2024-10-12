@@ -4,7 +4,7 @@ from datetime import date
 from typing import Generator
 from sqlalchemy.orm import Session
 
-from models import Player, PlayerLevel, Prize, Level, LevelPrize
+from level_models import PlayerL, PlayerLevel, Prize, Level, LevelPrize
 
 
 @pytest.fixture(scope="function")
@@ -19,9 +19,9 @@ def setup_data(setup_session) -> Generator[Session, None, None]:
     level2 = Level(title="Level 2")
     level3 = Level(title="Level 3")
 
-    player1 = Player(name="Player 1")
-    player2 = Player(name="Player 2")
-    player3 = Player(name="Player 3")
+    player1 = PlayerL(name="Player 1")
+    player2 = PlayerL(name="Player 2")
+    player3 = PlayerL(name="Player 3")
 
     session.add_all(
         (prize1, prize2, prize3, level1, level2, level3, player1, player2, player3)
@@ -46,7 +46,7 @@ def test_relations_in_models(setup_data):
 
     results = session.query(PlayerLevel).all()
     assert len(results) == 3
-    results = session.query(Player).filter_by(name="Player 1").one()
+    results = session.query(PlayerL).filter_by(name="Player 1").one()
     session.delete(results)
     results = session.query(Level).filter_by(title="Level 2").one()
     session.delete(results)
@@ -64,7 +64,7 @@ def test_relations_in_models(setup_data):
 def test_completed_level(setup_data):
     session = setup_data
 
-    player = session.query(Player).filter_by(name="Player 1").one()
+    player = session.query(PlayerL).filter_by(name="Player 1").one()
     assert PlayerLevel.completed_level(session, player=player.player_id, level=1)
 
     player_level = (
@@ -77,7 +77,7 @@ def test_completed_level(setup_data):
 def test_received_gift(setup_data):
     session = setup_data
 
-    player = session.query(Player).filter_by(name="Player 1").one()
+    player = session.query(PlayerL).filter_by(name="Player 1").one()
     prize = session.query(Prize).filter_by(title="Greetings").one()
 
     player_id, title_prize = LevelPrize.received_gift(
@@ -93,8 +93,8 @@ def test_received_gift(setup_data):
 def test_export_to_csv(setup_data):
     session = setup_data
 
-    count = session.query(PlayerLevel).count()
     PlayerLevel.export_to_csv(session)
+    count = session.query(PlayerLevel).count()
 
     with open("output.csv", "r") as f:
         lines = f.readlines()
